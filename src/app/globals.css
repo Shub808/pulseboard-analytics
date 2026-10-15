@@ -1,26 +1,219 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Tailwind v4's built-in `dark:` variant follows `prefers-color-scheme`. This
+   app lets the user override the OS setting, so the variant is redefined to
+   follow the `.dark` class that ThemeProvider writes onto <html>. Without
+   this, every `dark:` utility ignores the in-app theme switch. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   PulseBoard design system
+   ---------------------------------------------------------------------------
+   One source of truth for colour, radius, elevation and typography. Every
+   component consumes these tokens through Tailwind utilities (`bg-surface`,
+   `text-muted`, `border-line`, …) rather than raw hex values, so the whole
+   product re-themes from this block alone.
+
+   Palette tokens are defined twice: a light scheme on `:root` and a dark
+   scheme under `.dark`. Theme switching toggles that one class on <html>.
+--------------------------------------------------------------------------- */
+
+@theme {
+  /* Typography. The families are self-hosted via Fontsource (imported in
+     app/layout.tsx), with a system stack behind them so text is still
+     readable if a font file fails to load. */
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular,
+    Menlo, monospace;
+
+  /* Radii */
+  --radius-card: 0.875rem;
+  --radius-control: 0.5rem;
+
+  /* Brand ramp — used for primary actions and the first chart series. */
+  --color-brand-50: oklch(0.971 0.014 254);
+  --color-brand-100: oklch(0.936 0.032 254);
+  --color-brand-200: oklch(0.882 0.059 254);
+  --color-brand-300: oklch(0.809 0.094 254);
+  --color-brand-400: oklch(0.714 0.143 254);
+  --color-brand-500: oklch(0.623 0.188 258);
+  --color-brand-600: oklch(0.546 0.206 262);
+  --color-brand-700: oklch(0.474 0.186 263);
+  --color-brand-800: oklch(0.405 0.153 263);
+  --color-brand-900: oklch(0.352 0.123 263);
+
+  /* Reference status hues. Chips and badges do not use these directly — they
+     use the contrast-checked `--chip-*` triplets below — but they remain the
+     canonical "good / bad / caution" hues for marks and icons, which are not
+     held to the 4.5:1 text threshold. State is always paired with a glyph and
+     a label so it is never communicated by colour alone. */
+  --color-positive: #0ca30c;
+  --color-negative: #d03b3b;
+  --color-caution: #fab219;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer theme {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --app-bg: oklch(0.985 0.002 250);
+    --app-surface: oklch(1 0 0);
+    --app-surface-muted: oklch(0.971 0.003 250);
+    --app-surface-raised: oklch(1 0 0);
+    --app-text: oklch(0.22 0.02 265);
+    /* Both tiers clear WCGA AA (4.5:1) for 12px text against every surface
+       they are used on, including the tinted active-navigation background.
+       Verified by the axe-core pass in tests/e2e/accessibility.spec.ts. */
+    --app-text-muted: oklch(0.44 0.02 265);
+    --app-text-subtle: oklch(0.5 0.02 265);
+    --app-line: oklch(0.9 0.006 265);
+    --app-line-strong: oklch(0.82 0.01 265);
+    --app-shadow: 0 1px 2px oklch(0.2 0.03 265 / 0.06),
+      0 8px 24px -12px oklch(0.2 0.03 265 / 0.14);
+    --app-grid: oklch(0.91 0.005 265);
+
+    /* Status chips: explicit background/foreground/border triplets rather than
+       alpha-mixed tints. Mixing a status colour at 12% over the surface and
+       using the same colour for the text produced 1.7:1–4.5:1 text, which the
+       axe pass rejected. Each pair below clears 4.5:1 for 12px text. */
+    --chip-good-bg: #e4f4e4;
+    --chip-good-fg: #105c18;
+    --chip-good-br: #b9e0bd;
+    --chip-info-bg: #e6f0fe;
+    --chip-info-fg: #1a4fb0;
+    --chip-info-br: #b9d3fb;
+    --chip-warn-bg: #fdf2db;
+    --chip-warn-fg: #6b4105;
+    --chip-warn-br: #f2ddb0;
+    --chip-bad-bg: #fae8e8;
+    --chip-bad-fg: #8f1f1f;
+    --chip-bad-br: #f0c4c4;
+    --chip-neutral-bg: #f2f3f5;
+    --chip-neutral-fg: #4d535e;
+    --chip-neutral-br: #d9dbe0;
+
+    /* `--viz-*` chart tokens are generated from src/lib/viz-palette.ts and
+       injected into <head>; they are not declared here, so the TypeScript
+       palette Recharts uses and the CSS the UI uses cannot drift apart. */
+  }
+
+  .dark {
+    --app-bg: oklch(0.179 0.016 265);
+    --app-surface: oklch(0.219 0.018 265);
+    --app-surface-muted: oklch(0.249 0.019 265);
+    --app-surface-raised: oklch(0.262 0.02 265);
+    --app-text: oklch(0.967 0.004 265);
+    --app-text-muted: oklch(0.74 0.014 265);
+    --app-text-subtle: oklch(0.66 0.016 265);
+    --app-line: oklch(0.317 0.021 265);
+    --app-line-strong: oklch(0.42 0.025 265);
+    --app-shadow: 0 1px 2px oklch(0 0 0 / 0.4), 0 10px 30px -14px oklch(0 0 0 / 0.6);
+    --app-grid: oklch(0.317 0.021 265);
+
+    --chip-good-bg: #16291b;
+    --chip-good-fg: #86e79c;
+    --chip-good-br: #2b4a33;
+    --chip-info-bg: #16233a;
+    --chip-info-fg: #a3c9f9;
+    --chip-info-br: #2b4068;
+    --chip-warn-bg: #2e2512;
+    --chip-warn-fg: #f5cd63;
+    --chip-warn-br: #4d3f1d;
+    --chip-bad-bg: #2c1e26;
+    --chip-bad-fg: #f5a4a4;
+    --chip-bad-br: #53303a;
+    --chip-neutral-bg: #242936;
+    --chip-neutral-fg: #b2b7c0;
+    --chip-neutral-br: #39404f;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Expose the theme-dependent values as Tailwind colour utilities. */
+@theme inline {
+  --color-canvas: var(--app-bg);
+  --color-surface: var(--app-surface);
+  --color-surface-muted: var(--app-surface-muted);
+  --color-surface-raised: var(--app-surface-raised);
+  --color-ink: var(--app-text);
+  --color-muted: var(--app-text-muted);
+  --color-subtle: var(--app-text-subtle);
+  --color-line: var(--app-line);
+  --color-line-strong: var(--app-line-strong);
+  --color-grid: var(--app-grid);
+  --color-viz-1: var(--viz-1);
+  --color-viz-2: var(--viz-2);
+  --color-viz-3: var(--viz-3);
+  --color-viz-comparison: var(--viz-comparison);
+  --color-chip-good-bg: var(--chip-good-bg);
+  --color-chip-good-fg: var(--chip-good-fg);
+  --color-chip-good-br: var(--chip-good-br);
+  --color-chip-info-bg: var(--chip-info-bg);
+  --color-chip-info-fg: var(--chip-info-fg);
+  --color-chip-info-br: var(--chip-info-br);
+  --color-chip-warn-bg: var(--chip-warn-bg);
+  --color-chip-warn-fg: var(--chip-warn-fg);
+  --color-chip-warn-br: var(--chip-warn-br);
+  --color-chip-bad-bg: var(--chip-bad-bg);
+  --color-chip-bad-fg: var(--chip-bad-fg);
+  --color-chip-bad-br: var(--chip-bad-br);
+  --color-chip-neutral-bg: var(--chip-neutral-bg);
+  --color-chip-neutral-fg: var(--chip-neutral-fg);
+  --color-chip-neutral-br: var(--chip-neutral-br);
+  --shadow-card: var(--app-shadow);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--app-bg);
+    color: var(--app-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* A single, visible focus ring for every interactive element. Removing the
+     outline without replacing it is the most common keyboard-accessibility
+     regression in dashboards, so it is centralised here. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  /* Respect the OS "reduce motion" setting for every transition we ship. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Numeric columns line up only with tabular figures. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  /* Visible to screen readers, invisible on screen. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
 }
