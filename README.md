@@ -13,7 +13,7 @@ CSV reporting that always matches what is on screen.
 
 | | |
 |---|---|
-| **Live demo** | _not yet deployed — see [Deployment](#deployment)_ |
+| **Live demo** | [pulseboard-analytics-seven.vercel.app](https://pulseboard-analytics-seven.vercel.app) |
 | **Stack** | Next.js 16 (App Router) · React 19 · TypeScript 5 (strict+) · Tailwind CSS 4 · TanStack Query 5 · Recharts 3 · Zod 4 |
 | **Tests** | 83 unit / component / route-handler (Vitest) + 45 end-to-end (Playwright, 2 viewports), including 14 automated axe-core accessibility scans |
 | **Quality gates** | `tsc --noEmit` · ESLint 9 flat config · Vitest · Playwright · `next build` — all green, all run in CI |
