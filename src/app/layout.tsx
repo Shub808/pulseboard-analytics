@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   description:
     "A production-style React/Next.js analytics dashboard: server-side filtering, period-over-period KPIs, accessible data tables and CSV reporting. Portfolio project running on synthetic demo data.",
   applicationName: "PulseBoard",
+  authors: [{ name: "Shubham Naik", url: "https://github.com/Shub808" }],
+  creator: "Shubham Naik",
   robots: { index: true, follow: true },
 };
 
